@@ -9,6 +9,7 @@
 # - Does not change SSH port unless --ssh-port is provided.
 # - Does not disable SSH password authentication unless --disable-ssh-password is provided.
 # - Backs up modified configuration files.
+# - Uses Ubuntu-compatible SSH service restart logic: ssh.service first, sshd.service fallback.
 
 set -Eeuo pipefail
 
@@ -17,6 +18,7 @@ TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 REPORT_ROOT="/var/log/server-hardening"
 REPORT_DIR="${REPORT_ROOT}/${TIMESTAMP}"
 BACKUP_DIR="${REPORT_DIR}/backups"
+LATEST_LINK="${REPORT_ROOT}/latest"
 
 SSH_PORT="22"
 CHANGE_SSH_PORT="false"
@@ -123,6 +125,7 @@ prepare_reports() {
   mkdir -p "${REPORT_DIR}" "${BACKUP_DIR}"
   chmod 700 "${REPORT_ROOT}" "${REPORT_DIR}" "${BACKUP_DIR}"
   touch "${REPORT_DIR}/hardening-run.log"
+  ln -sfn "${REPORT_DIR}" "${LATEST_LINK}"
 }
 
 backup_file() {
@@ -203,6 +206,29 @@ configure_admin_user() {
   chage -l "${ADMIN_USER}" > "${REPORT_DIR}/password-aging-${ADMIN_USER}.txt" || true
 }
 
+configure_password_policy() {
+  log "Applying baseline password aging policy for local accounts."
+  backup_file "/etc/login.defs"
+
+  sed -i -E 's/^PASS_MAX_DAYS[[:space:]]+.*/PASS_MAX_DAYS   90/' /etc/login.defs
+  sed -i -E 's/^PASS_MIN_DAYS[[:space:]]+.*/PASS_MIN_DAYS   1/' /etc/login.defs
+  sed -i -E 's/^PASS_WARN_AGE[[:space:]]+.*/PASS_WARN_AGE   14/' /etc/login.defs
+  grep -E '^(PASS_MAX_DAYS|PASS_MIN_DAYS|PASS_WARN_AGE)' /etc/login.defs > "${REPORT_DIR}/login-defs-password-policy.txt" || true
+}
+
+configure_session_timeout() {
+  local timeout_file="/etc/profile.d/99-blue-team-session-timeout.sh"
+  log "Configuring inactive shell session timeout."
+  backup_file "${timeout_file}"
+  cat > "${timeout_file}" <<'EOF_TIMEOUT'
+# Blue Team baseline: close inactive interactive shell sessions after 15 minutes.
+TMOUT=900
+readonly TMOUT
+export TMOUT
+EOF_TIMEOUT
+  chmod 644 "${timeout_file}"
+}
+
 lock_root_account() {
   if [[ "${LOCK_ROOT}" == "true" ]]; then
     log "Locking root password to prevent direct password login."
@@ -224,6 +250,34 @@ set_sshd_option() {
   fi
 }
 
+validate_sshd_config() {
+  log "Validating SSH server configuration."
+
+  if command -v sshd >/dev/null 2>&1; then
+    sshd -t || die "sshd_config validation failed. Restore from ${BACKUP_DIR} if needed."
+  elif [[ -x /usr/sbin/sshd ]]; then
+    /usr/sbin/sshd -t || die "sshd_config validation failed. Restore from ${BACKUP_DIR} if needed."
+  else
+    die "OpenSSH server binary not found. Install openssh-server before applying SSH hardening."
+  fi
+}
+
+restart_ssh_service() {
+  log "Restarting SSH service using Ubuntu-compatible service detection."
+
+  if systemctl list-unit-files | grep -q '^ssh\.service'; then
+    systemctl restart ssh
+    systemctl is-active --quiet ssh || die "ssh.service did not restart cleanly."
+    systemctl status ssh --no-pager > "${REPORT_DIR}/ssh-service-status.txt" || true
+  elif systemctl list-unit-files | grep -q '^sshd\.service'; then
+    systemctl restart sshd
+    systemctl is-active --quiet sshd || die "sshd.service did not restart cleanly."
+    systemctl status sshd --no-pager > "${REPORT_DIR}/ssh-service-status.txt" || true
+  else
+    die "No SSH service unit found. On Ubuntu install it with: sudo apt-get install -y openssh-server"
+  fi
+}
+
 configure_ssh() {
   local sshd_config="/etc/ssh/sshd_config"
   [[ -f "${sshd_config}" ]] || die "Cannot find ${sshd_config}"
@@ -237,6 +291,14 @@ configure_ssh() {
   set_sshd_option "LoginGraceTime" "60"
   set_sshd_option "PubkeyAuthentication" "yes"
   set_sshd_option "Banner" "/etc/issue.net"
+  set_sshd_option "AllowTcpForwarding" "no"
+  set_sshd_option "X11Forwarding" "no"
+  set_sshd_option "AllowAgentForwarding" "no"
+  set_sshd_option "MaxSessions" "2"
+  set_sshd_option "LogLevel" "VERBOSE"
+  set_sshd_option "TCPKeepAlive" "no"
+  set_sshd_option "ClientAliveInterval" "300"
+  set_sshd_option "ClientAliveCountMax" "2"
 
   if [[ "${CHANGE_SSH_PORT}" == "true" ]]; then
     set_sshd_option "Port" "${SSH_PORT}"
@@ -251,13 +313,8 @@ configure_ssh() {
     log "SSH password authentication left unchanged. Use --disable-ssh-password after testing SSH keys."
   fi
 
-  sshd -t || die "sshd_config validation failed. Restore from ${BACKUP_DIR} if needed."
-
-  if systemctl list-unit-files | grep -q '^ssh\.service'; then
-    systemctl restart ssh
-  else
-    systemctl restart sshd
-  fi
+  validate_sshd_config
+  restart_ssh_service
 }
 
 configure_firewall() {
@@ -279,7 +336,7 @@ configure_firewall() {
 configure_fail2ban() {
   log "Configuring Fail2Ban for SSH brute-force protection."
   mkdir -p /etc/fail2ban/jail.d
-  cat > /etc/fail2ban/jail.d/sshd-hardening.local <<EOF
+  cat > /etc/fail2ban/jail.d/sshd-hardening.local <<EOF_JAIL
 [sshd]
 enabled = true
 port = ${SSH_PORT}
@@ -287,7 +344,7 @@ maxretry = 3
 findtime = 10m
 bantime = 1h
 backend = systemd
-EOF
+EOF_JAIL
 
   systemctl enable fail2ban
   systemctl restart fail2ban
@@ -300,7 +357,7 @@ configure_sysctl() {
   backup_file "${sysctl_file}"
 
   log "Applying kernel and network stack hardening."
-  cat > "${sysctl_file}" <<'EOF'
+  cat > "${sysctl_file}" <<'EOF_SYSCTL'
 # Blue Team Ubuntu hardening baseline
 
 # Disable IP forwarding unless the host is intentionally routing traffic.
@@ -337,13 +394,27 @@ net.ipv4.tcp_syncookies = 1
 net.ipv4.icmp_ignore_bogus_error_responses = 1
 net.ipv4.icmp_echo_ignore_broadcasts = 1
 
-# Reduce information leakage.
+# Reduce kernel information leakage.
 kernel.kptr_restrict = 2
 kernel.dmesg_restrict = 1
+kernel.perf_event_paranoid = 3
+kernel.unprivileged_bpf_disabled = 1
+net.core.bpf_jit_harden = 2
 
-# Restrict ptrace.
+# Restrict ptrace and core dumps.
 kernel.yama.ptrace_scope = 1
-EOF
+fs.suid_dumpable = 0
+kernel.core_uses_pid = 1
+
+# Improve protections around temporary files and links.
+fs.protected_hardlinks = 1
+fs.protected_symlinks = 1
+fs.protected_fifos = 2
+fs.protected_regular = 2
+
+# Disable SysRq key combinations.
+kernel.sysrq = 0
+EOF_SYSCTL
 
   sysctl --system > "${REPORT_DIR}/sysctl-apply.txt" || true
 }
@@ -367,30 +438,35 @@ configure_limits() {
   backup_file "${limits_file}"
 
   log "Applying baseline resource limits."
-  cat > "${limits_file}" <<'EOF'
+  cat > "${limits_file}" <<'EOF_LIMITS'
 # Blue Team baseline process and core dump limits.
 * hard core 0
 * soft nproc 4096
 * hard nproc 8192
 root soft nproc unlimited
 root hard nproc unlimited
-EOF
+EOF_LIMITS
 }
 
 configure_banner() {
   log "Configuring legal warning banner."
+  backup_file "/etc/issue"
   backup_file "/etc/issue.net"
-  cat > /etc/issue.net <<'EOF'
+  cat > /etc/issue.net <<'EOF_BANNER'
 UNAUTHORIZED ACCESS PROHIBITED.
 This system is for authorised users only.
 All activity may be monitored, logged, and reported.
-EOF
-  chmod 644 /etc/issue.net
+EOF_BANNER
+  cp /etc/issue.net /etc/issue
+  chmod 644 /etc/issue /etc/issue.net
 }
 
 configure_permissions() {
   log "Applying permission hygiene."
   chmod 600 /etc/ssh/sshd_config || true
+  chmod 750 /etc/sudoers.d || true
+  chmod 440 /etc/sudoers || true
+  find /etc/sudoers.d -type f -exec chmod 440 {} \; || true
   chmod 700 /root || true
   [[ -d /root/.ssh ]] && chmod 700 /root/.ssh
   [[ -f /root/.ssh/authorized_keys ]] && chmod 600 /root/.ssh/authorized_keys
@@ -403,7 +479,11 @@ capture_after() {
   w > "${REPORT_DIR}/active-sessions-after.txt" || true
   last -n 20 > "${REPORT_DIR}/recent-logins-after.txt" || true
   lastb -n 20 > "${REPORT_DIR}/failed-logins-after.txt" 2>/dev/null || true
-  sshd -T > "${REPORT_DIR}/sshd-effective-config.txt" || true
+  if command -v sshd >/dev/null 2>&1; then
+    sshd -T > "${REPORT_DIR}/sshd-effective-config.txt" || true
+  elif [[ -x /usr/sbin/sshd ]]; then
+    /usr/sbin/sshd -T > "${REPORT_DIR}/sshd-effective-config.txt" || true
+  fi
   ufw status verbose > "${REPORT_DIR}/ufw-status-final.txt" || true
 }
 
@@ -414,13 +494,14 @@ rkhunter_baseline() {
 }
 
 write_summary() {
-  cat > "${REPORT_DIR}/hardening-summary.txt" <<EOF
+  cat > "${REPORT_DIR}/hardening-summary.txt" <<EOF_SUMMARY
 Ubuntu Server Hardening Summary
 ================================
 
 Timestamp: ${TIMESTAMP}
 Hostname: $(hostname)
 Report directory: ${REPORT_DIR}
+Latest symlink: ${LATEST_LINK}
 
 Options:
 - Audit only: ${AUDIT_ONLY}
@@ -434,12 +515,18 @@ Options:
 Key evidence:
 - Pre-hardening Lynis log: ${REPORT_DIR}/lynis-pre-hardening.log
 - Post-hardening Lynis log: ${REPORT_DIR}/lynis-post-hardening.log
-- Pre-hardening Lynis report: ${REPORT_DIR}/lynis-report-pre.dat
-- Post-hardening Lynis report: ${REPORT_DIR}/lynis-report-post.dat
+- Pre-hardening Lynis report: ${REPORT_DIR}/lynis-report-pre-hardening.dat
+- Post-hardening Lynis report: ${REPORT_DIR}/lynis-report-post-hardening.dat
 - UFW status: ${REPORT_DIR}/ufw-status-final.txt
 - Fail2Ban status: ${REPORT_DIR}/fail2ban-sshd-status.txt
 - Effective SSH config: ${REPORT_DIR}/sshd-effective-config.txt
-- Listening ports before/after: ${REPORT_DIR}/listening-ports-before.txt and listening-ports-after.txt
+- SSH service status: ${REPORT_DIR}/ssh-service-status.txt
+- Listening ports before/after: ${REPORT_DIR}/listening-ports-before.txt and ${REPORT_DIR}/listening-ports-after.txt
+
+Useful commands:
+- List reports: sudo find /var/log/server-hardening -maxdepth 2 -type f | sort
+- View latest summary: sudo cat /var/log/server-hardening/latest/hardening-summary.txt
+- View latest Lynis post-hardening log: sudo less /var/log/server-hardening/latest/lynis-post-hardening.log
 
 Next actions:
 1. Review Lynis warnings and suggestions.
@@ -447,7 +534,7 @@ Next actions:
 3. Check SSH access from a second terminal before ending the current session.
 4. Integrate logs with SIEM tooling such as Wazuh, Microsoft Sentinel, or Splunk.
 5. Schedule regular patching, vulnerability scanning, and configuration reviews.
-EOF
+EOF_SUMMARY
 
   log "Hardening summary written to ${REPORT_DIR}/hardening-summary.txt"
 }
@@ -470,6 +557,8 @@ main() {
   fi
 
   configure_admin_user
+  configure_password_policy
+  configure_session_timeout
   lock_root_account
   configure_banner
   configure_ssh
@@ -485,6 +574,7 @@ main() {
   write_summary
 
   log "Completed. Review evidence in ${REPORT_DIR}"
+  log "Latest report shortcut: sudo cat ${LATEST_LINK}/hardening-summary.txt"
   log "Important: keep your current SSH session open and test a new SSH session before logging out."
 }
 

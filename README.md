@@ -1,5 +1,9 @@
 # Ubuntu Server Hardening Blue Team Toolkit
 
+A recruiter-friendly Linux security hardening project for newly installed Ubuntu servers.
+
+**Suggested GitHub description:** Ubuntu Server hardening toolkit using Lynis, UFW, Fail2Ban, SSH security, sysctl tuning and audit evidence generation, built from hands-on ISP, DNS, mail, web hosting and blue-team infrastructure experience.
+
 This repository demonstrates a practical **Day-0 Ubuntu Server hardening workflow**: baseline auditing with Lynis, controlled hardening, post-hardening validation, and evidence collection. It is designed to show hands-on infrastructure experience, network security awareness, and blue-team operational thinking.
 
 ## Why this project matters
@@ -111,6 +115,34 @@ Run the hardening workflow:
 sudo ./scripts/ubuntu-hardening.sh
 ```
 
+
+## Pull latest updates on the Linux server
+
+After the repository has already been cloned on the Ubuntu server, update it with:
+
+```bash
+cd ~/Ubuntu-Server-Hardening-Blue-Team
+git status
+git pull origin main
+```
+
+Then review and run the script again:
+
+```bash
+less scripts/ubuntu-hardening.sh
+chmod +x scripts/ubuntu-hardening.sh
+sudo ./scripts/ubuntu-hardening.sh --audit-only
+sudo ./scripts/ubuntu-hardening.sh
+```
+
+## Ubuntu SSH service compatibility fix
+
+Ubuntu normally uses `ssh.service`, while some Linux distributions use `sshd.service`. The script now validates the SSH configuration with `sshd -t` and restarts the correct service automatically. This prevents the previous Ubuntu error:
+
+```text
+Failed to restart sshd.service: Unit sshd.service not found.
+```
+
 ## Safer SSH rollout
 
 By default, the script **does not** change the SSH port and **does not** disable password authentication unless explicitly requested. This avoids locking administrators out of remote servers.
@@ -141,6 +173,20 @@ Reports are stored here:
 /var/log/server-hardening/<timestamp>/
 ```
 
+The script also creates a shortcut to the latest run:
+
+```text
+/var/log/server-hardening/latest/
+```
+
+Because this folder is root-protected, use `sudo` to read reports, for example:
+
+```bash
+sudo cat /var/log/server-hardening/latest/hardening-summary.txt
+sudo less /var/log/server-hardening/latest/lynis-post-hardening.log
+sudo find /var/log/server-hardening -maxdepth 2 -type f | sort
+```
+
 Typical files include:
 
 ```text
@@ -162,8 +208,8 @@ These files are useful for audit evidence, recruiter demonstrations, portfolio s
 | Area | Control |
 |---|---|
 | Patching | Runs package update and upgrade |
-| Access control | Locks direct root password login |
-| SSH | Disables root SSH login, empty passwords, limits attempts, optional SSH port change, optional password-auth disable |
+| Access control | Locks direct root password login, applies password aging, and adds idle shell timeout |
+| SSH | Disables root SSH login, empty passwords, limits attempts, disables X11/agent/TCP forwarding, optional SSH port change, optional password-auth disable |
 | Firewall | Enables UFW deny-inbound/allow-outbound baseline |
 | Intrusion prevention | Installs and configures Fail2Ban for SSH |
 | Kernel hardening | Adds sysctl controls for spoofing protection, redirects, source routing, SYN cookies |
