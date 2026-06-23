@@ -83,8 +83,8 @@ The main script:
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/ubuntu-server-hardening-blue-team.git
-cd ubuntu-server-hardening-blue-team
+git clone https://github.com/poulmhiripiri/Ubuntu-Server-Hardening-Blue-Team.git
+cd Ubuntu-Server-Hardening-Blue-Team
 ```
 
 Review the script before running it:
