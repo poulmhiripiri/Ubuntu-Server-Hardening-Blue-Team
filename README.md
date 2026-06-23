@@ -1,9 +1,5 @@
 # Ubuntu Server Hardening Blue Team Toolkit
 
-A recruiter-friendly Linux security hardening project for newly installed Ubuntu servers.
-
-**Suggested GitHub description:** Ubuntu Server hardening toolkit using Lynis, UFW, Fail2Ban, SSH security, sysctl tuning and audit evidence generation, built from hands-on ISP, DNS, mail, web hosting and blue-team infrastructure experience.
-
 This repository demonstrates a practical **Day-0 Ubuntu Server hardening workflow**: baseline auditing with Lynis, controlled hardening, post-hardening validation, and evidence collection. It is designed to show hands-on infrastructure experience, network security awareness, and blue-team operational thinking.
 
 ## Why this project matters
@@ -222,6 +218,17 @@ These files are useful for audit evidence, recruiter demonstrations, portfolio s
 ## Important operational note
 
 Do not run hardening scripts blindly on production servers. Test first in a lab, VM, or maintenance window. Confirm application ports, backup access, SSH keys, monitoring, and operational requirements before applying changes.
+
+## Security Improvements Achieved
+
+| Control         | Before  | After    |
+| --------------- | ------- | -------- |
+| Lynis Score     | X       | Y        |
+| Root Login      | Enabled | Disabled |
+| Fail2Ban        | No      | Yes      |
+| Auditd          | No      | Yes      |
+| Firewall        | Default | Hardened |
+| Password Policy | Default | Enforced |
 
 ## Suggested portfolio use
 
