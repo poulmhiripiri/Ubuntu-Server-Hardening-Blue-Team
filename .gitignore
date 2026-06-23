@@ -1,0 +1,15 @@
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local reports and logs
+*.log
+*.dat
+reports/
+server-hardening-logs/
+
+# Temporary files
+*.tmp
+*.bak
