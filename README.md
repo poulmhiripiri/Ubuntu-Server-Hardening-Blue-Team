@@ -2,6 +2,8 @@
 
 A recruiter-friendly Linux security hardening project for newly installed Ubuntu servers.
 
+**Suggested GitHub description:** Ubuntu Server hardening toolkit using Lynis, UFW, Fail2Ban, SSH security, sysctl tuning and audit evidence generation, built from hands-on ISP, DNS, mail, web hosting and blue-team infrastructure experience.
+
 This repository demonstrates a practical **Day-0 Ubuntu Server hardening workflow**: baseline auditing with Lynis, controlled hardening, post-hardening validation, and evidence collection. It is designed to show hands-on infrastructure experience, network security awareness, and blue-team operational thinking.
 
 ## Why this project matters
@@ -23,9 +25,21 @@ This toolkit helps turn a fresh Ubuntu server into a more defensible baseline by
 
 ## Professional context
 
-I built this as part of my transition from hands-on IT Networks and Infrastructure Management into cybersecurity, with a focus on blue-team skills. My background includes supporting ISP and banking environments where uptime, secure access, change control, audit evidence, firewalling, segmentation, and operational resilience were critical.
+I built this as part of my transition from hands-on IT Networks and Infrastructure Management into cybersecurity, with a focus on blue-team skills. My background includes supporting ISP, hosting, banking and enterprise infrastructure environments where uptime, secure access, DNS reliability, mail flow, web availability, change control, audit evidence, firewalling, segmentation and operational resilience were critical.
 
-This project reflects that experience by combining infrastructure hardening with security operations practices such as baseline assessment, control implementation, post-change validation, and reporting.
+This project reflects that experience by combining infrastructure hardening with security operations practices such as baseline assessment, control implementation, post-change validation and reporting.
+
+## Author background
+
+This project was developed by **Poul Mhiripiri**, an IT Networks and Infrastructure professional with over 15 years of hands-on experience across ISP, banking, enterprise infrastructure and cybersecurity environments.
+
+My Linux server experience began in the ISP sector, where I worked on production systems supporting customer-facing internet services. This included setting up client domains on ISP authoritative name servers, configuring and maintaining Linux-based DNS services using BIND, and supporting hosted customer domains.
+
+I also worked with Linux-based mail and proxy services deployed at client sites, including environments where DNS, mail routing, internet access and perimeter services were critical to business operations. As part of ISP hosting operations, I maintained MX servers and hosted web servers used by customer domains, including spam filtering, mail relay, DNS records, web hosting support and service availability checks.
+
+In banking and enterprise infrastructure roles, I extended this experience into highly available, security-focused environments where uptime, patching, access control, audit evidence, firewall policy, logging and infrastructure resilience were essential. This project brings together that background with my current focus on cybersecurity and blue-team defensive operations.
+
+The purpose of this repository is to demonstrate practical Linux server hardening skills, security posture assessment, attack surface reduction and evidence-based infrastructure security using tools such as Lynis, UFW, Fail2Ban, SSH hardening, sysctl tuning and security logging.
 
 ## Repository structure
 
@@ -34,6 +48,7 @@ ubuntu-server-hardening-blue-team/
 ├── scripts/
 │   └── ubuntu-hardening.sh
 ├── docs/
+│   ├── author-background.md
 │   ├── hardening-controls.md
 │   ├── recruiter-talk-track.md
 │   └── rollback-and-testing.md
