@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0 - Human-readable report generation
+
+- Added `scripts/generate-hardening-report.sh` to convert raw hardening evidence into a readable Markdown report.
+- Added `scripts/convert-hardening-report.sh` to convert the Markdown report into HTML or PDF using Pandoc.
+- Updated README with report-generation steps for Markdown, HTML and PDF output.
+
+
 ## v2.0.0-final
 
 - Added Ubuntu-compatible SSH restart detection.
