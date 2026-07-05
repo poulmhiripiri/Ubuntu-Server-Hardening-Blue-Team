@@ -1,10 +1,14 @@
 # Ubuntu Server Hardening Blue-Team Toolkit
 
+<<<<<<< HEAD
 A practical Ubuntu Server hardening project that installs Lynis, captures a pre-hardening security posture, applies safe post-install hardening controls, and generates evidence-ready reports for blue-team, infrastructure, and audit review.
 
 This project is built from hands-on ISP, DNS, mail, proxy, web hosting, banking infrastructure, and cybersecurity experience.
 
 ## Repository Description
+=======
+This repository demonstrates a practical **Day-0 Ubuntu Server hardening workflow**: baseline auditing with Lynis, controlled hardening, post-hardening validation, and evidence collection. It is designed to show hands-on infrastructure experience, network security awareness, and blue-team operational thinking.
+>>>>>>> 4ddeba4cee6400727baedd9a978962c5f6209330
 
 Ubuntu Server hardening toolkit using Lynis, UFW, Fail2Ban, SSH security, sysctl tuning, Auditd and evidence generation, built from hands-on ISP, DNS, mail, web hosting and blue-team infrastructure experience.
 
@@ -248,6 +252,7 @@ evidence/sample-hardening-evidence.md
 
 This repository demonstrates:
 
+<<<<<<< HEAD
 - Linux server administration
 - Ubuntu post-install hardening
 - Bash scripting
@@ -260,6 +265,75 @@ This repository demonstrates:
 - Blue-team operational thinking
 - Before and after security validation
 - Infrastructure security experience from ISP, hosting and banking environments
+=======
+Because this folder is root-protected, use `sudo` to read reports, for example:
+
+```bash
+sudo cat /var/log/server-hardening/latest/hardening-summary.txt
+sudo less /var/log/server-hardening/latest/lynis-post-hardening.log
+sudo find /var/log/server-hardening -maxdepth 2 -type f | sort
+```
+
+Typical files include:
+
+```text
+lynis-pre-hardening.log
+lynis-post-hardening.log
+lynis-report-pre.dat
+lynis-report-post.dat
+enabled-services-before.txt
+enabled-services-after.txt
+listening-ports-before.txt
+listening-ports-after.txt
+hardening-summary.txt
+```
+
+These files are useful for audit evidence, recruiter demonstrations, portfolio screenshots, and interview discussions.
+
+## Key controls implemented
+
+| Area | Control |
+|---|---|
+| Patching | Runs package update and upgrade |
+| Access control | Locks direct root password login, applies password aging, and adds idle shell timeout |
+| SSH | Disables root SSH login, empty passwords, limits attempts, disables X11/agent/TCP forwarding, optional SSH port change, optional password-auth disable |
+| Firewall | Enables UFW deny-inbound/allow-outbound baseline |
+| Intrusion prevention | Installs and configures Fail2Ban for SSH |
+| Kernel hardening | Adds sysctl controls for spoofing protection, redirects, source routing, SYN cookies |
+| Logging | Enables auditd and persistent journald |
+| Legal banner | Configures `/etc/issue.net` and SSH banner |
+| Permissions | Secures SSH server config and root SSH directory |
+| Resource limits | Adds baseline process and core dump limits |
+| Security assessment | Runs Lynis before and after hardening |
+
+## Important operational note
+
+Do not run hardening scripts blindly on production servers. Test first in a lab, VM, or maintenance window. Confirm application ports, backup access, SSH keys, monitoring, and operational requirements before applying changes.
+
+## Security Improvements Achieved
+
+| Control         | Before  | After    |
+| --------------- | ------- | -------- |
+| Lynis Score     | X       | Y        |
+| Root Login      | Enabled | Disabled |
+| Fail2Ban        | No      | Yes      |
+| Auditd          | No      | Yes      |
+| Firewall        | Default | Hardened |
+| Password Policy | Default | Enforced |
+
+## Suggested portfolio use
+
+Add screenshots of:
+
+- Lynis pre-hardening score
+- Lynis post-hardening score
+- UFW status
+- Fail2Ban status
+- SSH configuration checks
+- `/var/log/server-hardening/<timestamp>/hardening-summary.txt`
+
+Then explain the project as a Day-0 baseline hardening workflow that combines infrastructure engineering discipline with blue-team security controls.
+>>>>>>> 4ddeba4cee6400727baedd9a978962c5f6209330
 
 ## Disclaimer
 
