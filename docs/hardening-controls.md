@@ -1,144 +1,55 @@
 # Hardening Controls
 
-This document maps the script controls to operational security objectives.
+## Audit and Evidence
 
-## Baseline audit
+- Creates timestamped report directories under `/var/log/server-hardening/`
+- Runs Lynis before and after hardening
+- Captures listening ports, enabled services, logins, failed logins and active sessions
+- Creates a `latest` symlink to simplify review
 
-The script installs Lynis and runs a pre-hardening audit before making changes. This creates an evidence baseline that can be compared against the post-hardening audit.
+## SSH Security
 
-## System updates
+- Disables root SSH login
+- Blocks empty passwords
+- Limits authentication attempts
+- Sets login grace time
+- Disables X11 forwarding
+- Disables TCP forwarding
+- Disables agent forwarding
+- Limits maximum SSH sessions
+- Sets verbose SSH logging
+- Uses Ubuntu-compatible SSH service detection: `ssh.service` first, then `sshd.service`
 
-The script runs:
+## Firewall
 
-```bash
-apt-get update
-apt-get upgrade -y
-```
+- Resets UFW to a known baseline
+- Denies inbound traffic by default
+- Allows outbound traffic by default
+- Allows SSH on the configured port
+- Optionally allows HTTP and HTTPS
 
-Security objective: reduce exposure to known vulnerabilities in installed packages.
+## Intrusion Prevention
 
-## User and privilege management
+- Enables Fail2Ban
+- Configures SSH jail
+- Uses 3 retries, 10-minute find time and 1-hour ban time
 
-Optional command:
+## Account Security
 
-```bash
---admin-user <username>
-```
+- Locks the root password
+- Optionally creates/configures an admin user
+- Enforces password aging baseline
+- Adds password quality settings
 
-This creates or updates a sudo-capable administrative user and applies password aging controls:
+## System Hardening
 
-- Maximum password age: 90 days
-- Inactive lock period: 30 days
+- Applies sysctl hardening for spoofing, redirects, martian logging, kernel pointer restriction and protected links
+- Optionally disables IPv6
+- Enables Auditd
+- Adds audit rules for identity, privilege and SSH configuration files
+- Updates RKHunter baseline
 
-Security objective: avoid routine direct root usage and support named administrative accountability.
+## Session Security
 
-## Root account protection
-
-By default, the script locks the root password:
-
-```bash
-passwd -l root
-```
-
-Security objective: prevent direct password-based use of the root account.
-
-## SSH hardening
-
-Controls applied:
-
-- `PermitRootLogin no`
-- `PermitEmptyPasswords no`
-- `MaxAuthTries 3`
-- `LoginGraceTime 60`
-- `PubkeyAuthentication yes`
-- SSH legal banner
-- Optional custom SSH port
-- Optional disabling of SSH password authentication
-
-Security objective: reduce brute-force exposure and prevent direct root SSH login.
-
-## Firewall baseline
-
-The script resets and enables UFW:
-
-- Deny incoming by default
-- Allow outgoing by default
-- Allow SSH
-- Optionally allow HTTP/HTTPS
-
-Security objective: close unused network access paths and explicitly permit required services.
-
-## Fail2Ban
-
-The script configures Fail2Ban for SSH:
-
-- `maxretry = 3`
-- `findtime = 10m`
-- `bantime = 1h`
-- `backend = systemd`
-
-Security objective: slow down brute-force attacks and repeated authentication abuse.
-
-## Kernel and network stack hardening
-
-The script writes `/etc/sysctl.d/99-blue-team-hardening.conf` with controls for:
-
-- Disabling IP forwarding
-- Rejecting source routing
-- Rejecting ICMP redirects
-- Reverse-path filtering
-- Logging suspicious packets
-- SYN flood protection
-- Kernel pointer and dmesg restrictions
-- ptrace restriction
-
-Security objective: reduce spoofing, man-in-the-middle, local information disclosure, and network abuse opportunities.
-
-## Logging and audit readiness
-
-The script enables:
-
-- `auditd`
-- persistent `journald`
-- current boot error log capture
-
-Security objective: improve investigation and forensic readiness.
-
-## Resource limits
-
-The script creates `/etc/security/limits.d/99-blue-team-hardening.conf` to restrict core dumps and set baseline process limits.
-
-Security objective: reduce accidental exposure through core dumps and limit process abuse.
-
-## Banner
-
-The script writes `/etc/issue.net` and links it to SSH.
-
-Security objective: provide an authorised-use warning and support acceptable-use enforcement.
-
-## Permission hygiene
-
-The script tightens permissions on:
-
-- `/etc/ssh/sshd_config`
-- `/root`
-- `/root/.ssh`
-- `/root/.ssh/authorized_keys`
-
-Security objective: prevent accidental exposure of sensitive administration files.
-
-## Evidence generated
-
-The script saves before/after outputs for:
-
-- Lynis audit
-- enabled services
-- listening ports
-- active sessions
-- recent logins
-- failed logins
-- UFW status
-- Fail2Ban status
-- effective SSH configuration
-- auditd status
-- journal errors
+- Adds `/etc/profile.d/session-timeout.sh`
+- Sets `TMOUT=900` for 15-minute idle shell logout

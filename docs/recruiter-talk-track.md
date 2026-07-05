@@ -2,29 +2,19 @@
 
 ## 30-second summary
 
-This project demonstrates my ability to harden a freshly installed Ubuntu server using a blue-team mindset. It starts with a Lynis baseline audit, applies practical security controls across SSH, firewalling, Fail2Ban, kernel settings, audit logging, permissions, and legal banners, and then produces a post-hardening report for evidence. It reflects my hands-on background in ISP, DNS, mail, web hosting and banking infrastructure where secure access, uptime, audit evidence, and operational discipline were critical.
+This project demonstrates a practical Ubuntu Server hardening workflow designed from real infrastructure experience. It installs Lynis, captures pre-hardening evidence, applies blue-team hardening controls and generates post-hardening audit evidence. It reflects my background in ISP, DNS, mail, web hosting, banking infrastructure and my current focus on cybersecurity defensive operations.
 
 ## 60-second summary
 
-I created this Ubuntu hardening toolkit to show how I translate infrastructure experience into cybersecurity practice. The workflow does not just apply commands blindly. It captures a pre-hardening baseline, backs up configuration files, applies controlled hardening, validates SSH configuration, enables firewall and intrusion prevention controls, strengthens the network stack, enables audit logging, and runs a post-hardening Lynis audit. This gives both technical controls and evidence, which is important in enterprise environments.
+I built this project to show how my network and infrastructure background translates into hands-on cybersecurity engineering. In the ISP sector, I worked with Linux servers supporting client domains, authoritative DNS, BIND, MX servers, mail routing, spam filtering, proxy services and hosted web servers. In banking infrastructure, I worked in environments where uptime, security, patching, audit evidence, access control and resilience were critical.
 
-My background includes hands-on network and infrastructure management in ISP and banking environments. In the ISP space, I worked with Linux servers supporting client domains, authoritative DNS, BIND, MX services, mail routing, spam filtering, proxy services and hosted web servers. I understand the importance of availability, secure remote administration, change control, firewall policy, logging, and audit readiness. I am now building on that experience as I pursue blue-team cybersecurity roles.
+The toolkit uses Lynis to baseline and validate the server posture, then applies controls such as SSH hardening, UFW firewall policy, Fail2Ban, Auditd, sysctl tuning, password policy, idle session timeout and root account protection. It also produces before-and-after evidence, which is important for operational security, audit reviews and blue-team validation.
 
-## Interview talking points
+## Interview points
 
-- I understand that hardening must be measurable, so the script runs Lynis before and after changes.
-- I avoided risky defaults that could lock administrators out, such as disabling SSH password authentication without explicit approval.
-- I used backup and validation steps before restarting SSH.
-- I implemented layered controls: patching, SSH, firewall, Fail2Ban, sysctl, auditd, permissions, and reporting.
-- I treated evidence as part of the deliverable, not an afterthought.
-- This project connects my infrastructure background to blue-team outcomes such as prevention, detection, audit readiness, and incident response support.
-- I can link Linux hardening to real hosted-service operations, including DNS, mail, web, proxy and customer-facing ISP platforms.
-- I understand that server hardening must protect availability as well as confidentiality and integrity, especially for DNS, MX and web services.
-
-## How this links to my experience
-
-In ISP and banking environments, I worked with infrastructure where downtime, weak access control, poor visibility, DNS issues, mail-flow problems, hosted web-service failures and misconfiguration could create major business risk. My ISP experience included setting up customer domains on authoritative name servers, supporting Linux DNS using BIND, maintaining MX servers with spam filtering, and supporting hosted web servers for client domains. This project demonstrates that I can approach Linux hardening in the same structured way: assess, implement, validate, document, and improve.
-
-## Suggested LinkedIn/GitHub description
-
-Day-0 Ubuntu Server Hardening Toolkit using Bash, Lynis, UFW, Fail2Ban, auditd, sysctl, SSH controls, and evidence reporting. Built from hands-on ISP, DNS, MX, web hosting, banking infrastructure and blue-team security experience.
+- I understand Linux hardening from both operational and security perspectives.
+- I designed the script safely to avoid SSH lockout on remote servers.
+- I included evidence generation because security changes must be measurable.
+- I handled Ubuntu-specific service naming issues, especially `ssh.service` versus `sshd.service`.
+- I linked the project to real ISP hosting, DNS, mail and banking infrastructure experience.
+- I can extend this into Wazuh, Splunk or Microsoft Sentinel for SIEM visibility.

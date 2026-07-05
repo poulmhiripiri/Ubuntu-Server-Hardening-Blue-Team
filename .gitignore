@@ -1,15 +1,12 @@
-# OS/editor files
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Local reports and logs
+# Local evidence and logs
 *.log
 *.dat
-reports/
-server-hardening-logs/
-
-# Temporary files
-*.tmp
 *.bak
+hardening-evidence/
+raw-evidence/
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
