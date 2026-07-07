@@ -1,12 +1,19 @@
-# Local evidence and logs
-*.log
-*.dat
-*.bak
-hardening-evidence/
-raw-evidence/
-
 # OS/editor files
 .DS_Store
 .vscode/
 .idea/
 *.swp
+
+# Runtime backups or temporary local evidence folders
+*.bak
+hardening-evidence/
+raw-evidence/
+
+# Allow lab evidence outputs to be committed intentionally
+evidence/*.log
+evidence/*.dat
+evidence/*.txt
+evidence/*.pdf
+evidence/*.md
+evidence/screenshots/*.png
+evidence/screenshots/*.jpg

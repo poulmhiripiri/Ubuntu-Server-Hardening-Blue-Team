@@ -342,3 +342,32 @@ This repository demonstrates:
 ## Disclaimer
 
 Test this script in a lab before running it on production systems. Confirm application-specific ports and services before applying firewall or SSH changes.
+
+## Lab Evidence and Screenshots
+
+This repository includes lab evidence generated after running the toolkit on an Ubuntu Server VM. The evidence is stored under:
+
+```text
+evidence/
+evidence/screenshots/
+```
+
+The included lab run demonstrates:
+
+- Lynis pre-hardening and post-hardening assessment
+- UFW firewall validation
+- Fail2Ban SSH jail validation
+- Auditd service validation
+- Password aging evidence
+- Listening-port and enabled-service snapshots
+- Human-readable PDF report generation
+- Screenshot-based procedure evidence
+
+The lab evidence is intentionally included because this was a non-production environment and does not contain production credentials or customer data.
+
+See:
+
+- `docs/implementation-procedure.md`
+- `docs/testing-and-validation.md`
+- `docs/screenshots.md`
+- `evidence/README.md`

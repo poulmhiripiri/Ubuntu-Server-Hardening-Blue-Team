@@ -5,7 +5,7 @@
 
 set -Eeuo pipefail
 
-SCRIPT_VERSION="2.0.0-final"
+SCRIPT_VERSION="2.1.0-lab-evidence"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BASE_REPORT_DIR="/var/log/server-hardening"
 REPORT_DIR="${BASE_REPORT_DIR}/${TIMESTAMP}"
@@ -139,6 +139,22 @@ run_cmd_capture() {
     { "$@"; } > "${REPORT_DIR}/${outfile}" 2>&1 || true
 }
 
+capture_failed_logins() {
+    local outfile="$1"
+    if command -v lastb >/dev/null 2>&1; then
+        run_cmd_capture "${outfile}" lastb -n 20
+    else
+        log "lastb command not found. Capturing explanatory note in ${outfile}."
+        {
+            echo "lastb command not found on this Ubuntu installation."
+            echo "This does not stop the hardening workflow."
+            echo "Failed SSH activity should also be reviewed using:"
+            echo "  sudo journalctl -u ssh --since '24 hours ago'"
+            echo "  sudo grep -i 'failed password' /var/log/auth.log"
+        } > "${REPORT_DIR}/${outfile}"
+    fi
+}
+
 collect_evidence_before() {
     log "Collecting pre-hardening evidence."
     run_cmd_capture system-info.txt bash -c 'hostnamectl; echo; uname -a; echo; lsb_release -a 2>/dev/null || cat /etc/os-release'
@@ -146,7 +162,7 @@ collect_evidence_before() {
     run_cmd_capture enabled-services-before.txt systemctl list-unit-files --state=enabled
     run_cmd_capture active-sessions-before.txt who
     run_cmd_capture recent-logins-before.txt last -n 20
-    run_cmd_capture failed-logins-before.txt lastb -n 20
+    capture_failed_logins failed-logins-before.txt
 }
 
 collect_evidence_after() {
@@ -155,7 +171,7 @@ collect_evidence_after() {
     run_cmd_capture enabled-services-after.txt systemctl list-unit-files --state=enabled
     run_cmd_capture active-sessions-after.txt who
     run_cmd_capture recent-logins-after.txt last -n 20
-    run_cmd_capture failed-logins-after.txt lastb -n 20
+    capture_failed_logins failed-logins-after.txt
     run_cmd_capture ufw-status-final.txt ufw status verbose
     run_cmd_capture fail2ban-status.txt fail2ban-client status
     run_cmd_capture fail2ban-sshd-status.txt fail2ban-client status sshd

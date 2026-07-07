@@ -21,3 +21,12 @@
 - Adds Auditd baseline rules.
 - Adds improved evidence capture before and after hardening.
 - Adds recruiter-focused documentation and troubleshooting notes.
+## v2.1.0-lab-evidence
+
+- Added actual lab evidence files from a completed Ubuntu Server hardening run.
+- Added screenshots folder for procedure screenshots.
+- Added implementation procedure documentation.
+- Added testing and validation documentation.
+- Added evidence README explaining each output file.
+- Updated script to handle missing `lastb` gracefully on minimal Ubuntu installations.
+- Updated `.gitignore` so intentional lab evidence can be committed.
