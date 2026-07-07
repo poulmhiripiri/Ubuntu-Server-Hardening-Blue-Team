@@ -371,3 +371,17 @@ See:
 - `docs/testing-and-validation.md`
 - `docs/screenshots.md`
 - `evidence/README.md`
+
+## Full Lab Evidence
+
+This repository includes a complete lab evidence pack:
+
+```text
+docs/                     # Implementation, testing, troubleshooting and screenshot procedure notes
+evidence/                 # Lab outputs from the hardening run
+evidence/screenshots/     # Screenshots captured during the step-by-step activity
+```
+
+The evidence pack demonstrates the end-to-end process from a fresh Ubuntu Server installation through audit-only mode, hardening execution, Lynis review, report generation, SSH banner validation and Fail2Ban validation.
+
+If these folders are not visible after unzipping, make sure you copied the contents of the inner `Ubuntu-Server-Hardening-Blue-Team/` folder into your GitHub repository root.

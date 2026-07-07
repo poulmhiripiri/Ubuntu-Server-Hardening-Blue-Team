@@ -1,26 +1,44 @@
-# Screenshots
+# Screenshot Evidence
 
-This folder contains screenshots captured during the lab activity.
+This folder contains screenshot evidence captured during the Ubuntu Server hardening lab.
 
-## Included Screenshots
+Location:
 
-| Screenshot | Description |
-|---|---|
-| `01-github-repository-homepage.png` | GitHub repository homepage showing the project structure and recruiter-friendly About section |
-| `02-latest-evidence-files-terminal.png` | Terminal output showing the generated evidence files under `/var/log/server-hardening/latest` |
+```text
+evidence/screenshots/
+```
 
-## Suggested Additional Screenshots
+The screenshots document the step-by-step process, including:
 
-For a stronger portfolio presentation, include screenshots showing:
+1. Fresh Ubuntu Server installation.
+2. Confirming installation date and environment details.
+3. Installing Git and cloning the GitHub repository.
+4. Reviewing and executing the hardening script.
+5. Running audit-only mode.
+6. Running the full hardening workflow.
+7. Viewing generated reports under `/var/log/server-hardening/latest`.
+8. Checking the Lynis pre-hardening and post-hardening index.
+9. Reviewing Lynis suggestions.
+10. Generating human-readable Markdown, HTML and PDF reports.
+11. Confirming SSH login banner configuration.
+12. Verifying Fail2Ban activity.
 
-1. Repository clone on the Ubuntu server.
-2. Audit-only execution.
-3. Full hardening run completion.
-4. `hardening-summary.txt` output.
-5. Lynis pre/post hardening score comparison.
-6. UFW final status.
-7. Fail2Ban SSH jail status.
-8. Auditd service status.
-9. HTML or PDF report output.
+## Screenshot Files
 
-Keep screenshots readable and avoid exposing credentials or private keys.
+The screenshots are stored using sequential names such as:
+
+```text
+01-lab-step-screenshot.png
+02-lab-step-screenshot.png
+03-lab-step-screenshot.png
+...
+```
+
+Additional screenshots include:
+
+```text
+01-github-repository-homepage.png
+02-latest-evidence-files-terminal.png
+```
+
+These screenshots are from a controlled lab environment and are included to demonstrate the implementation procedure and validation evidence.
