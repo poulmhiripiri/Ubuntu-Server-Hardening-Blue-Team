@@ -1,0 +1,44 @@
+Ubuntu Server Hardening Summary
+================================
+
+Timestamp: 20260706-180312
+Script version: 2.0.0-final
+Hostname: blue-team
+Report directory: /var/log/server-hardening/20260706-180312
+Latest symlink: /var/log/server-hardening/latest
+
+Options:
+- Audit only: false
+- SSH port: 22
+- SSH port changed: false
+- SSH password authentication disabled: false
+- Web ports allowed: false
+- Admin user configured: none
+- Root password locked: true
+- IPv6 disabled by script: false
+- RKHunter enabled: true
+
+Key evidence:
+- Pre-hardening Lynis log: /var/log/server-hardening/20260706-180312/lynis-pre-hardening.log
+- Post-hardening Lynis log: /var/log/server-hardening/20260706-180312/lynis-post-hardening.log
+- Pre-hardening Lynis report: /var/log/server-hardening/20260706-180312/lynis-report-pre-hardening.dat
+- Post-hardening Lynis report: /var/log/server-hardening/20260706-180312/lynis-report-post-hardening.dat
+- UFW status: /var/log/server-hardening/20260706-180312/ufw-status-final.txt
+- Fail2Ban status: /var/log/server-hardening/20260706-180312/fail2ban-sshd-status.txt
+- Effective SSH config: /var/log/server-hardening/20260706-180312/sshd-effective-config.txt
+- SSH service status: /var/log/server-hardening/20260706-180312/ssh-service-status.txt
+- Listening ports before/after: /var/log/server-hardening/20260706-180312/listening-ports-before.txt and /var/log/server-hardening/20260706-180312/listening-ports-after.txt
+
+Useful commands:
+- List reports: sudo find /var/log/server-hardening -maxdepth 2 -type f | sort
+- View latest summary: sudo cat /var/log/server-hardening/latest/hardening-summary.txt
+- View latest Lynis post-hardening log: sudo less /var/log/server-hardening/latest/lynis-post-hardening.log
+- Check Lynis hardening index: sudo grep -i "hardening index" /var/log/server-hardening/latest/lynis-post-hardening.log
+- Check Lynis warnings: sudo grep -i "warning" /var/log/server-hardening/latest/lynis-post-hardening.log
+
+Next actions:
+1. Review Lynis warnings and suggestions.
+2. Confirm application-specific ports and services.
+3. Check SSH access from a second terminal before ending the current session.
+4. Integrate logs with SIEM tooling such as Wazuh, Microsoft Sentinel, or Splunk.
+5. Schedule regular patching, vulnerability scanning, and configuration reviews.

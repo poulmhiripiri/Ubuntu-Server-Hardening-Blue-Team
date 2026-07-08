@@ -385,3 +385,20 @@ evidence/screenshots/     # Screenshots captured during the step-by-step activit
 The evidence pack demonstrates the end-to-end process from a fresh Ubuntu Server installation through audit-only mode, hardening execution, Lynis review, report generation, SSH banner validation and Fail2Ban validation.
 
 If these folders are not visible after unzipping, make sure you copied the contents of the inner `Ubuntu-Server-Hardening-Blue-Team/` folder into your GitHub repository root.
+
+## Lab Evidence, Screenshots and Post-Hardening Report
+
+This repository includes lab evidence captured after following the step-by-step hardening procedure.
+
+- Screenshots: `evidence/screenshots/`
+- Post-hardening report bundle: `evidence/reports/`
+- Generated PDF report: `evidence/reports/post-hardening-evidence-report.pdf`
+- Lynis post-hardening log: `evidence/reports/lynis-post-hardening.log`
+- Lynis post-hardening machine-readable report: `evidence/reports/lynis-report-post-hardening.dat`
+
+To confirm the files after cloning or unzipping:
+
+```bash
+find evidence/screenshots -maxdepth 1 -type f | sort
+find evidence/reports -maxdepth 1 -type f | sort
+```
