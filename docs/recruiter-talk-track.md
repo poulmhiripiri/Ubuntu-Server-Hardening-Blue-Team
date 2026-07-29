@@ -1,4 +1,4 @@
-# summary
+# Summary
 
 I built this project to show how my network and infrastructure background translates into hands-on cybersecurity engineering. In the ISP sector, I worked with Linux servers supporting client domains, authoritative DNS, BIND, MX servers, mail routing, spam filtering, proxy services and hosted web servers. In banking infrastructure, I worked in environments where uptime, security, patching, audit evidence, access control and resilience were critical.
 
